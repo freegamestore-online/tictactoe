@@ -1,0 +1,13 @@
+{
+  "name": "tictactoe",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "engines": { "node": ">=22" },
+  "pnpm": { "onlyBuiltDependencies": ["esbuild"] },
+  "scripts": {
+    "dev": "pnpm --filter @tictactoe/web dev",
+    "build": "pnpm --filter @tictactoe/web build",
+    "preview": "pnpm --filter @tictactoe/web preview",
+    "typecheck": "pnpm --filter @tictactoe/web exec tsc -b"
+  }
+}
