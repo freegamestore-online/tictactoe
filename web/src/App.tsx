@@ -134,6 +134,7 @@ export default function App() {
             { label: "Win", value: wins, accent: true },
             { label: "Loss", value: losses },
             { label: "Draw", value: draws },
+            { label: "Streak", value: streak },
             { label: "Best", value: bestStreak },
           ]}
           rules={
