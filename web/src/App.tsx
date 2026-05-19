@@ -1,6 +1,14 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
-import { GameShell, GameTopbar, GameAuth, GameButton } from "@freegamestore/games";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { GameShell, GameTopbar, GameAuth, GameButton, useGameSounds } from "@freegamestore/games";
 import { useHighScore } from "./hooks/useHighScore";
+
+type SoundsApi = ReturnType<typeof useGameSounds>;
+
+function AudioBridge({ apiRef }: { apiRef: React.MutableRefObject<SoundsApi | null> }) {
+  const sounds = useGameSounds();
+  apiRef.current = sounds;
+  return null;
+}
 
 type Cell = "X" | "O" | null;
 type Board = Cell[];
@@ -66,6 +74,7 @@ export default function App() {
   const [draws, setDraws] = useState(0);
   const { highScore: bestStreak, updateHighScore } = useHighScore("tictactoe-streak");
   const [streak, setStreak] = useState(0);
+  const audioRef = useRef<SoundsApi | null>(null);
 
   const { result, line } = useMemo(() => evaluate(board), [board]);
   const gameOver = result !== null;
@@ -78,6 +87,7 @@ export default function App() {
       next[idx] = "X";
       setBoard(next);
       setTurn("O");
+      audioRef.current?.playMove();
     },
     [board, turn, gameOver],
   );
@@ -90,6 +100,7 @@ export default function App() {
       if (move !== -1) {
         next[move] = "O";
         setBoard(next);
+        audioRef.current?.playMove();
       }
       setTurn("X");
     }, 380);
@@ -105,11 +116,14 @@ export default function App() {
         updateHighScore(ns);
         return ns;
       });
+      audioRef.current?.playLevelUp();
     } else if (result === "O") {
       setLosses((l) => l + 1);
       setStreak(0);
+      audioRef.current?.playGameOver();
     } else {
       setDraws((d) => d + 1);
+      audioRef.current?.playError();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
@@ -157,6 +171,7 @@ export default function App() {
         />
       }
     >
+      <AudioBridge apiRef={audioRef} />
       <div className="flex flex-col items-center justify-center h-full gap-5">
         <p style={{ color: "var(--muted)", fontFamily: "Manrope, sans-serif" }}>
           {status}
